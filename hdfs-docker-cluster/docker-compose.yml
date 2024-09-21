@@ -1,0 +1,62 @@
+services:
+  namenode:
+    image: apache/hadoop:3.3.5
+    container_name: namenode
+    hostname: namenode
+    user: root
+    environment:
+      - HADOOP_HOME=/opt/hadoop
+    volumes:
+      - ./hadoop_namenode:/opt/hadoop/data/nameNode
+      - ./hadoop_config:/opt/hadoop/etc/hadoop
+      - ./start-hdfs.sh:/start-hdfs.sh
+    ports:
+      - "9870:9870"
+    command: [ "/bin/bash", "/start-hdfs.sh" ]
+    networks:
+      hdfs_network:
+        ipv4_address: 172.21.0.2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://namenode:9870"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  datanode1:
+    image: apache/hadoop:3.3.5
+    container_name: datanode1
+    hostname: datanode1
+    user: root
+    environment:
+      - HADOOP_HOME=/opt/hadoop
+    volumes:
+      - ./hadoop_datanode1:/opt/hadoop/data/dataNode
+      - ./hadoop_config:/opt/hadoop/etc/hadoop
+      - ./init-datanode.sh:/init-datanode.sh
+    depends_on:
+      - namenode
+    command: [ "/bin/bash", "/init-datanode.sh" ]
+    networks:
+      hdfs_network:
+        ipv4_address: 172.21.0.3
+
+  app:
+    build:
+      context: ..
+      dockerfile: hdfs-docker-cluster/Dockerfile
+    container_name: app
+    depends_on:
+      namenode:
+        condition: service_healthy
+      datanode1:
+        condition: service_started
+    networks:
+      - hdfs_network
+
+networks:
+  hdfs_network:
+    name: hdfs_network
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.21.0.0/16
