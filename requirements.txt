@@ -1,1 +1,3 @@
 hdfs
+jupyterlab
+ray[data,train,tune,serve]

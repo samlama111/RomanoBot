@@ -40,16 +40,18 @@ services:
       hdfs_network:
         ipv4_address: 172.21.0.3
 
-  app:
+  client:
     build:
       context: ..
       dockerfile: hdfs-docker-cluster/Dockerfile
-    container_name: app
+    container_name: client
     depends_on:
       namenode:
         condition: service_healthy
       datanode1:
         condition: service_started
+    ports:
+      - "8888:8888"  # Expose Jupyter Lab port
     networks:
       - hdfs_network
 
