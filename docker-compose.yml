@@ -1,0 +1,58 @@
+version: "3"
+
+services:
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: namenode
+    environment:
+      - CLUSTER_NAME=test
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+    ports:
+      - "9870:9870" # Web UI
+    volumes:
+      - ./hdfs-docker-cluster/volumes/namenode:/hadoop/dfs/name
+    networks:
+      - hdfs
+
+  datanode1:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode1
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - CORE_CONF_hadoop_http_staticuser_user=root
+      - HDFS_CONF_dfs_replication=2
+      - HDFS_CONF_dfs_webhdfs_enabled=true
+    volumes:
+      - ./hdfs-docker-cluster/volumes/datanode1:/hadoop/dfs/data
+    networks:
+      - hdfs
+
+  datanode2:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode2
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - CORE_CONF_hadoop_http_staticuser_user=root
+      - HDFS_CONF_dfs_replication=1
+    volumes:
+      - ./hdfs-docker-cluster/volumes/datanode2:/hadoop/dfs/data
+    networks:
+      - hdfs
+
+  jupyter:
+    build:
+      dockerfile: jupyter.dockerfile
+      context: ./jupyter
+    shm_size: "2gb" # for Ray
+    ports:
+      - "8888:8888" # Expose Jupyter Lab port
+      - "8265:8265" # Ray Dashboard
+    volumes:
+      - ./jupyter/volumes:/app
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    networks:
+      - hdfs
+
+networks:
+  hdfs:
