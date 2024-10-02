@@ -41,7 +41,7 @@ services:
     build:
       dockerfile: jupyter.dockerfile
       context: ./jupyter
-    shm_size: "2gb" # for Ray
+    shm_size: "4.90gb" # for Ray
     ports:
       - "8888:8888" # Expose Jupyter Lab port
       - "8265:8265" # Ray Dashboard
