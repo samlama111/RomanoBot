@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>RomanoBot</title>
+    <script src="https://unpkg.com/htmx.org@2.0.3"></script>
+  </head>
+
+  <body>
+    <div class="section">
+      <h1 class="header">RomanoBot</h1>
+      <img
+        class="logo"
+        alt="Portrait of Fabrizio Romano"
+        src="static/FabrizioRomano.jpeg"
+      />
+    </div>
+
+    <hr />
+    <div class="section">
+      <div class="selection">
+        <h2 class="header">Selection</h2>
+        <div>
+          <img class="logo" alt="Player" src="static/player.png" />
+          <h3 class="header">Player</h3>
+          <div id="player" class="dropdown">
+            <input
+              type="text"
+              placeholder="Lionel Messi"
+              onkeyup="filterFunction(true)"
+            />
+            {% for player in players %}
+            <button onclick="fillInput(event)">{{ player }}</button>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div>
+          <img class="logo" alt="Club Logo" src="static/team.jpeg" />
+          <h3 class="header">Team</h3>
+          <div id="team" class="dropdown">
+            <input
+              type="text"
+              placeholder="FC Barcelona"
+              onkeyup="filterFunction(false)"
+            />
+            {% for club in clubs %}
+            <button onclick="fillInput(event)">{{ club }}</button>
+            {% endfor %}
+          </div>
+        </div>
+
+        <button
+          hx-get="/predict"
+          hx-target="#percentage"
+          hx-indicator="#spinner"
+          id="predict"
+        >
+          <span>Predict</span>
+        </button>
+      </div>
+    </div>
+
+    <hr />
+    <div class="section">
+      <img
+        alt="loading..."
+        id="spinner"
+        class="htmx-indicator"
+        src="static/loading.gif"
+      />
+      <div class="result">
+        <div id="percentage"></div>
+        <div>Here we go!</div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    function filterFunction(filteringPlayers) {
+      const div = document.getElementById(filteringPlayers ? "player" : "team");
+      const input = div.getElementsByTagName("input")[0];
+      const filter = input.value.toUpperCase();
+      const players = div.getElementsByTagName("button");
+
+      let counter = 0;
+
+      for (const player of players) {
+        const txtValue = player.textContent || player.innerText;
+        if (
+          filter &&
+          counter < 5 &&
+          txtValue.toUpperCase().indexOf(filter) > -1
+        ) {
+          player.style.display = "block";
+          counter++;
+        } else {
+          player.style.display = "none";
+        }
+      }
+    }
+
+    function fillInput(event) {
+      const input = event.target.parentElement.getElementsByTagName("input")[0];
+      input.value = event.target.textContent;
+      filterFunction(true);
+      filterFunction(false);
+    }
+  </script>
+
+  <style>
+    /* general */
+    .section {
+      margin: 2rem;
+    }
+
+    .logo {
+      display: block;
+      margin: auto;
+      width: 10rem;
+      height: 10rem;
+    }
+
+    .header {
+      text-align: center;
+    }
+
+    /* selection */
+
+    .selection {
+      width: 50%;
+      margin: auto;
+      margin-bottom: 2rem;
+      gap: 1rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .selection h2 {
+      grid-column: 1 / span 2;
+    }
+
+    .selection button {
+      grid-column: 1 / span 2;
+      margin: auto;
+      padding: 0.5rem 1rem;
+    }
+
+    .dropdown {
+      margin: auto;
+      width: 12rem;
+      border: black 1px solid;
+    }
+
+    .dropdown input {
+      font-size: 16px;
+      width: 10rem;
+      padding: 1rem;
+      border: none;
+      border-bottom: 1px solid black;
+    }
+
+    .dropdown button {
+      display: none;
+      padding: 0.2rem 1rem;
+      text-decoration: none;
+      color: black;
+      width: 100%;
+    }
+
+    #predict {
+      margin: auto;
+      padding: 0.5rem 1rem;
+      grid-column: 1 / span 2;
+    }
+
+    .htmx-indicator {
+      display: none;
+      width: 5rem;
+      height: 5rem;
+      margin: auto;
+    }
+
+    .htmx-request.htmx-indicator {
+      display: block;
+    }
+
+    .htmx-request.htmx-indicator ~ div {
+      display: none;
+    }
+
+    /* result */
+
+    .result {
+      width: 50%;
+      margin: auto;
+    }
+
+    .result div {
+      text-align: center;
+      font-size: x-large;
+      font-weight: bold;
+    }
+  </style>
+</html>
