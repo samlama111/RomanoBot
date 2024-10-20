@@ -4,3 +4,4 @@ ray[data,train,tune,serve]
 scikit-learn
 ipywidgets
 tqdm
+modin[ray]
