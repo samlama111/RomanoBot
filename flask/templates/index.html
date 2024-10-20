@@ -51,12 +51,18 @@
         </div>
 
         <button
-          hx-get="/predict"
+          hx-post="/predict"
+          hx-trigger="click"
+          hx-vals='js:{
+            "player": document.querySelector("#player input").value,
+            "team": document.querySelector("#team input").value
+          }'
+          hx-headers='js:{"Content-Type": "application/json"}'
           hx-target="#percentage"
           hx-indicator="#spinner"
           id="predict"
         >
-          <span>Predict</span>
+          Predict
         </button>
       </div>
     </div>

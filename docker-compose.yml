@@ -58,6 +58,8 @@ services:
       context: ./flask
     ports:
       - "5001:5000" # Expose Flask port
+    networks:
+      - hdfs
 
 networks:
   hdfs:
