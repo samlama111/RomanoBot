@@ -18,53 +18,42 @@
 
     <hr />
     <div class="section">
-      <div class="selection">
-        <h2 class="header">Selection</h2>
-        <div>
-          <img class="logo" alt="Player" src="static/player.png" />
-          <h3 class="header">Player</h3>
-          <div id="player" class="dropdown">
+      <form hx-post="/predict" hx-target="#percentage" hx-indicator="#spinner">
+        <div class="selection">
+          <h2 class="header">Selection</h2>
+          <div>
+            <img class="logo" alt="Player" src="static/player.png" />
+            <h3 class="header">Player</h3>
             <input
               type="text"
-              placeholder="Lionel Messi"
-              onkeyup="filterFunction(true)"
+              name="player_search"
+              placeholder="Search player"
+              hx-post="/search_players"
+              hx-trigger="keyup changed delay:500ms"
+              hx-target="#player-results"
             />
-            {% for player in players %}
-            <button onclick="fillInput(event)">{{ player }}</button>
-            {% endfor %}
+            <div id="player-results"></div>
+            <input type="hidden" name="player_id" id="player_id" />
           </div>
-        </div>
 
-        <div>
-          <img class="logo" alt="Club Logo" src="static/team.jpeg" />
-          <h3 class="header">Team</h3>
-          <div id="team" class="dropdown">
+          <div>
+            <img class="logo" alt="Club Logo" src="static/team.jpeg" />
+            <h3 class="header">Team</h3>
             <input
               type="text"
-              placeholder="FC Barcelona"
-              onkeyup="filterFunction(false)"
+              name="team_search"
+              placeholder="Search team"
+              hx-post="/search_teams"
+              hx-trigger="keyup changed delay:500ms"
+              hx-target="#team-results"
             />
-            {% for club in clubs %}
-            <button onclick="fillInput(event)">{{ club }}</button>
-            {% endfor %}
+            <div id="team-results"></div>
+            <input type="hidden" name="club_id" id="club_id" />
           </div>
-        </div>
 
-        <button
-          hx-post="/predict"
-          hx-trigger="click"
-          hx-vals='js:{
-            "player": document.querySelector("#player input").value,
-            "team": document.querySelector("#team input").value
-          }'
-          hx-headers='js:{"Content-Type": "application/json"}'
-          hx-target="#percentage"
-          hx-indicator="#spinner"
-          id="predict"
-        >
-          Predict
-        </button>
-      </div>
+          <button type="submit" id="predict">Predict</button>
+        </div>
+      </form>
     </div>
 
     <hr />
@@ -81,38 +70,6 @@
       </div>
     </div>
   </body>
-
-  <script>
-    function filterFunction(filteringPlayers) {
-      const div = document.getElementById(filteringPlayers ? "player" : "team");
-      const input = div.getElementsByTagName("input")[0];
-      const filter = input.value.toUpperCase();
-      const players = div.getElementsByTagName("button");
-
-      let counter = 0;
-
-      for (const player of players) {
-        const txtValue = player.textContent || player.innerText;
-        if (
-          filter &&
-          counter < 5 &&
-          txtValue.toUpperCase().indexOf(filter) > -1
-        ) {
-          player.style.display = "block";
-          counter++;
-        } else {
-          player.style.display = "none";
-        }
-      }
-    }
-
-    function fillInput(event) {
-      const input = event.target.parentElement.getElementsByTagName("input")[0];
-      input.value = event.target.textContent;
-      filterFunction(true);
-      filterFunction(false);
-    }
-  </script>
 
   <style>
     /* general */
@@ -207,5 +164,62 @@
       font-size: x-large;
       font-weight: bold;
     }
+
+    /* Update dropdown styles for select elements */
+    select {
+      font-size: 16px;
+      width: 12rem;
+      padding: 0.5rem;
+      border: 1px solid black;
+      margin: auto;
+      display: block;
+    }
+
+    /* Update input styles */
+    input[type="text"] {
+      font-size: 16px;
+      width: 12rem;
+      padding: 0.5rem;
+      border: 1px solid black;
+      margin: auto;
+      display: block;
+    }
+
+    /* Style for search results */
+    .search-results {
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+    }
+
+    .search-result-item {
+      padding: 5px;
+      cursor: pointer;
+    }
+
+    .search-result-item:hover {
+      background-color: #f0f0f0;
+    }
   </style>
+
+  <script>
+    document.body.addEventListener('click', function(event) {
+      if (event.target.classList.contains('search-result-item')) {
+        const type = event.target.dataset.type;
+        const id = event.target.dataset.id;
+        const name = event.target.textContent;
+
+        if (type === 'player') {
+          document.querySelector('input[name="player_search"]').value = name;
+          document.querySelector('#player_id').value = id;
+          document.querySelector('#player-results').innerHTML = '';
+        } else if (type === 'club') {
+          document.querySelector('input[name="team_search"]').value = name;
+          document.querySelector('#club_id').value = id;
+          document.querySelector('#team-results').innerHTML = '';
+        }
+      }
+    });
+  </script>
 </html>
