@@ -14,8 +14,5 @@ EDIT we followed another tutorial but this was still a good starting point -> (M
 5. The Notebook can be accessed at `http://localhost:8888`
 6. The services can be stopped using `docker-compose down`.
 
-## (TODO:) Running with a deployed cluster/service
-
-## (Potential TODO: Sometimes the files are not shown as existing (corrupted even though they are in the filesystem maybe include deleting and reuploading in the python script))
-
-Can be run the same as locally, but the config file (`hdfs-docker-cluster/hadoop_config/.hdfs_config`) need to be updated to point to the correct cluster/service.
+Note: In order to run the frontend successfully the model needs to be generated beforehand. In the case where the model does not exist yet it should be trained first and after that
+the frontend can be spun up using `docker-compose up flask --build` to specifically spin up the front-end.
