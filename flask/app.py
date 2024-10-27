@@ -13,7 +13,7 @@ hdfs_client = InsecureClient(url="http://namenode:9870", user="root")
 
 player_df, club_df = None, None
 
-model = joblib.load("random_forest_model.joblib")
+model = joblib.load("random_forest_model.pkl")
 
 
 def load_data():
@@ -70,6 +70,8 @@ def prepare_player_data(player_data):
         player_data["contract_expiration_date"]
     ).year
 
+    print(prepared_data)
+
     # Embedding fields
     embedding_fields = [
         "from_country_name",
@@ -103,6 +105,7 @@ def prepare_player_data(player_data):
 def predict_transfer_probability(player_data, target_club_id, model, feature_names):
     # Prepare the player data
     prepared_data = prepare_player_data(player_data)
+    print(prepared_data)
 
     # Add the target club's country embedding
     target_club_competition_id = club_df[club_df["club_id"] == target_club_id][
@@ -208,7 +211,8 @@ def predict():
 
     # Make a prediction
     percentage = predict_transfer_probability(player, club_id, model, train_features)
-    return f"{percentage}% \nfor {player['name']} to {team['name']}"
+    print(percentage)
+    return f"{percentage:.2%}% \nfor {player['name']} to {team['name']}"
 
 
 if __name__ == "__main__":
