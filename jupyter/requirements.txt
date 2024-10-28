@@ -1,7 +1,7 @@
 hdfs
 jupyterlab
 ray[data,train,tune,serve]
-scikit-learn
+scikit-learn==1.5.2
 ipywidgets
 tqdm
 modin[ray]

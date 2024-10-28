@@ -164,3 +164,5 @@ cython_debug/
 
 hdfs-docker-cluster/volumes/
 jupyter/volumes/data/
+flask/random_forest_model.joblib
+flask/random_forest_model.pkl
