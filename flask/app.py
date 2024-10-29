@@ -105,7 +105,6 @@ def prepare_player_data(player_data):
 def predict_transfer_probability(player_data, target_club_id, model, feature_names):
     # Prepare the player data
     prepared_data = prepare_player_data(player_data)
-    print(prepared_data)
 
     # Add the target club's country embedding
     target_club_competition_id = club_df[club_df["club_id"] == target_club_id][
@@ -163,7 +162,7 @@ def search_teams():
     results = club_df[club_df["name"].str.lower().str.contains(query)].head(5)
     html = '<div class="search-results">'
     for _, team in results.iterrows():
-        html += f'<div class="search-result-item" data-type="club" data-id="{team.name}">{team["name"]}</div>'
+        html += f'<div class="search-result-item" data-type="club" data-id="{team["club_id"]}">{team["name"]}</div>'
     html += "</div>"
     return html
 
@@ -175,6 +174,7 @@ def predict():
     data = request.form.to_dict()
     player_id = data.get("player_id", "")
     club_id = data.get("club_id", "")
+    print(f"player_id: {player_id}, club_id: {club_id}")
 
     try:
         player_id = int(player_id)
@@ -184,11 +184,9 @@ def predict():
 
     try:
         player = player_df.loc[player_id]
-        team = club_df.loc[club_id]
+        team = club_df[club_df["club_id"] == club_id].iloc[0]
     except KeyError:
         return "Player or club not found", 404
-
-    print(player)
 
     train_features = [
         "player_id",
@@ -211,8 +209,7 @@ def predict():
 
     # Make a prediction
     percentage = predict_transfer_probability(player, club_id, model, train_features)
-    print(percentage)
-    return f"{percentage:.2%}% \nfor {player['name']} to {team['name']}"
+    return f"{percentage:.2%} \nfor {player['name']} to {team['name']}"
 
 
 if __name__ == "__main__":
